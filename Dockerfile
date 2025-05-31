@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 # Add metadata labels
 LABEL org.opencontainers.image.title="XMRig Docker"
