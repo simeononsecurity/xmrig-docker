@@ -73,48 +73,7 @@ fi
 echo "XMRig executable found and ready"
 chmod +x ./xmrig
 
-# Build CUDA plugin for NVIDIA GPU support
-echo "Checking for NVIDIA GPUs..."
-if [ -c /dev/nvidia0 ] || [ -d /proc/driver/nvidia ]; then
-    echo "NVIDIA GPU detected, building xmrig-cuda plugin from source..."
-    
-    # Clone the xmrig-cuda repository
-    echo "Cloning xmrig-cuda repository..."
-    git clone https://github.com/xmrig/xmrig-cuda.git
-    cd xmrig-cuda
-    
-    # Create build directory
-    mkdir -p build
-    cd build
-    
-    # Configure and build
-    echo "Configuring and building xmrig-cuda plugin..."
-    cmake .. -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda
-    make -j$(nproc)
-    
-    # Check if build was successful
-    if [ -f "libxmrig-cuda.so" ]; then
-        echo "Successfully built CUDA plugin"
-        # Move the plugin to the app directory
-        cp libxmrig-cuda.so /app/
-        cd /app
-        
-        # Update config.json to enable CUDA if it exists
-        if [ -f "./config.json" ]; then
-            echo "Updating config.json to enable CUDA support"
-            sed -i 's/"cuda": {[^}]*}/"cuda": {\n      "enabled": true,\n      "loader": null,\n      "nvml": true,\n      "devices": []\n    }/g' ./config.json
-        fi
-    else
-        echo "Failed to build CUDA plugin"
-        cd /app
-    fi
-    
-    # Clean up
-    echo "Cleaning up build files..."
-    rm -rf /app/xmrig-cuda
-else
-    echo "No NVIDIA GPU detected, skipping CUDA plugin build"
-fi
+# CPU-only mining, no GPU support
 
 # Clean up XMRig download files
 echo "Cleaning up XMRig download files..."
