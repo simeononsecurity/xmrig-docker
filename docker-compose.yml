@@ -10,26 +10,3 @@ services:
       # - ./config.json:/config/config.json
     # Uncomment and add your command line arguments below
     # command: -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k
-    
-    # GPU Support Configuration
-    
-    # For NVIDIA GPUs
-    runtime: nvidia
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-    
-    # For AMD GPUs
-    devices:
-      # Uncomment the lines below for AMD GPU passthrough
-      # - /dev/dri:/dev/dri
-      # - /dev/kfd:/dev/kfd
-    
-    # For both NVIDIA and AMD
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
