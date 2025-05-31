@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 # Add metadata labels
 LABEL org.opencontainers.image.title="XMRig Docker"
-LABEL org.opencontainers.image.description="Docker container for XMRig cryptocurrency miner with CPU, NVIDIA and AMD GPU support"
+LABEL org.opencontainers.image.description="Docker container for XMRig cryptocurrency miner"
 LABEL org.opencontainers.image.url="https://github.com/simeononsecurity/xmrig-docker"
 LABEL org.opencontainers.image.source="https://github.com/simeononsecurity/xmrig-docker"
 LABEL org.opencontainers.image.version="latest"
@@ -18,29 +18,12 @@ LABEL org.opencontainers.image.documentation="https://github.com/simeononsecurit
 # Docker Hub labels
 LABEL com.docker.hub.repository="simeononsecurity/xmrig"
 
-# Install required packages and build dependencies
-# Note: NVIDIA support is provided by the host through the NVIDIA Container Toolkit
-# We don't install NVIDIA drivers in the container
+# Install required packages
 RUN apt-get update && \
     apt-get install -y wget tar msr-tools \
-    ocl-icd-libopencl1 opencl-headers clinfo \
-    libcurl4 libssl3 libhwloc15 \
-    build-essential cmake git gnupg && \
+    libcurl4 libssl3 libhwloc15 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-# Install CUDA Toolkit for building CUDA plugin
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb && \
-    dpkg -i cuda-keyring_1.1-1_all.deb && \
-    rm cuda-keyring_1.1-1_all.deb && \
-    apt-get update && \
-    apt-get install -y cuda-toolkit-12-4 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Create directory for AMD GPU support
-RUN mkdir -p /etc/OpenCL/vendors && \
-    echo "libamdocl64.so" > /etc/OpenCL/vendors/amdocl64.icd
 
 # Create app directory
 WORKDIR /app
