@@ -13,15 +13,11 @@ _________
 - Runs the RandomX boost script at startup for optimal performance
 - Allows custom configuration via mounted config.json
 - Supports passing command-line arguments directly to XMRig
-- Supports NVIDIA and AMD GPU passthrough for GPU mining
 
 ## Prerequisites
 
 - Docker installed on your system
 - MSR modules available on the host (for RandomX optimization)
-- For GPU mining:
-  - NVIDIA: [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker) installed
-  - AMD: Proper drivers installed and device access
 
 ## Usage
 
@@ -61,24 +57,6 @@ You can pass arguments directly to XMRig:
 
 ```bash
 docker run --privileged simeononsecurity/xmrig:latest -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k
-```
-
-### GPU Mining
-
-#### NVIDIA GPUs
-
-To use NVIDIA GPUs for mining, you need to have the NVIDIA Container Toolkit installed and use the following command:
-
-```bash
-docker run --privileged --gpus all simeononsecurity/xmrig:latest -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k --cuda
-```
-
-#### AMD GPUs
-
-To use AMD GPUs for mining, you need to pass through the GPU devices:
-
-```bash
-docker run --privileged --device=/dev/dri:/dev/dri --device=/dev/kfd:/dev/kfd simeononsecurity/xmrig:latest -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k --opencl
 ```
 
 #### Using Docker Compose
