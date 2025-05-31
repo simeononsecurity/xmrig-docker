@@ -73,8 +73,64 @@ fi
 echo "XMRig executable found and ready"
 chmod +x ./xmrig
 
-# Clean up
-echo "Cleaning up..."
+# Download CUDA plugin for NVIDIA GPU support
+echo "Checking for NVIDIA GPUs..."
+if [ -c /dev/nvidia0 ] || [ -d /proc/driver/nvidia ]; then
+    echo "NVIDIA GPU detected, downloading xmrig-cuda plugin..."
+    
+    # Get latest CUDA plugin release URL
+    CUDA_RELEASE_URL=$(wget -qO- https://api.github.com/repos/xmrig/xmrig-cuda/releases/latest | grep "browser_download_url.*cuda.*tar.gz" | grep -v "sha256" | cut -d '"' -f 4 | grep "12.4" | head -n 1)
+    
+    if [ -z "$CUDA_RELEASE_URL" ]; then
+        echo "Failed to get latest CUDA plugin URL, using fallback URL"
+        CUDA_RELEASE_URL="https://github.com/xmrig/xmrig-cuda/releases/download/v6.22.0/xmrig-cuda-6.22.0-cuda12.4-win64.zip"
+    fi
+    
+    echo "Downloading CUDA plugin from: $CUDA_RELEASE_URL"
+    
+    # Download the CUDA plugin
+    if wget -O cuda-plugin.tar.gz "$CUDA_RELEASE_URL"; then
+        echo "Successfully downloaded CUDA plugin"
+        
+        # Extract the plugin
+        if [[ "$CUDA_RELEASE_URL" == *".zip" ]]; then
+            apt-get update && apt-get install -y unzip
+            unzip -o cuda-plugin.tar.gz
+        else
+            tar -xzf cuda-plugin.tar.gz
+        fi
+        
+        # Find the plugin file
+        CUDA_PLUGIN=$(find . -name "libxmrig-cuda.so" -o -name "xmrig-cuda.dll" | head -n 1)
+        
+        if [ -n "$CUDA_PLUGIN" ]; then
+            echo "Found CUDA plugin: $CUDA_PLUGIN"
+            # Move the plugin to the current directory if it's in a subdirectory
+            if [ "$(dirname "$CUDA_PLUGIN")" != "." ]; then
+                mv "$CUDA_PLUGIN" ./
+            fi
+            chmod +x ./$(basename "$CUDA_PLUGIN")
+            
+            # Update config.json to enable CUDA if it exists
+            if [ -f "./config.json" ]; then
+                echo "Updating config.json to enable CUDA support"
+                sed -i 's/"cuda": {[^}]*}/"cuda": {\n      "enabled": true,\n      "loader": null,\n      "nvml": true,\n      "devices": []\n    }/g' ./config.json
+            fi
+        else
+            echo "CUDA plugin not found in the downloaded package"
+        fi
+        
+        # Clean up
+        rm -f cuda-plugin.tar.gz
+    else
+        echo "Failed to download CUDA plugin"
+    fi
+else
+    echo "No NVIDIA GPU detected, skipping CUDA plugin download"
+fi
+
+# Clean up XMRig download files
+echo "Cleaning up XMRig download files..."
 rm -f xmrig.tar.gz
 rm -rf $(find . -type d -name "xmrig*" | grep -v "^.$")
 
