@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 # Add metadata labels
 LABEL org.opencontainers.image.title="XMRig Docker"
@@ -19,11 +19,12 @@ LABEL org.opencontainers.image.documentation="https://github.com/simeononsecurit
 LABEL com.docker.hub.repository="simeononsecurity/xmrig"
 
 # Install required packages
+# Note: NVIDIA support is provided by the host through the NVIDIA Container Toolkit
+# We don't install NVIDIA drivers in the container
 RUN apt-get update && \
     apt-get install -y wget tar msr-tools \
     ocl-icd-libopencl1 opencl-headers clinfo \
-    libcurl4 libssl3 libhwloc15 \
-    nvidia-opencl-dev libnvidia-compute && \
+    libcurl4 libssl3 libhwloc15 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
