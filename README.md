@@ -1,6 +1,6 @@
 # XMRig Docker Container
 
-This Docker container automatically downloads and runs the latest version of [XMRig](https://github.com/xmrig/xmrig), a high-performance RandomX, KawPow, CryptoNight, AstroBWT and GhostRider CPU/GPU miner.
+This Docker container automatically downloads and runs the latest version of [XMRig](https://github.com/xmrig/xmrig), a high-performance RandomX, KawPow, CryptoNight, AstroBWT and GhostRider CPU miner.
 
 Repository: [https://github.com/simeononsecurity/xmrig-docker](https://github.com/simeononsecurity/xmrig-docker)
 
@@ -13,6 +13,7 @@ _________
 - Runs the RandomX boost script at startup for optimal performance
 - Allows custom configuration via mounted config.json
 - Supports passing command-line arguments directly to XMRig
+- CPU-only mining for maximum compatibility and simplicity
 
 ## Prerequisites
 
@@ -59,6 +60,31 @@ You can pass arguments directly to XMRig:
 docker run --privileged simeononsecurity/xmrig:latest -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k
 ```
 
+### GPU Mining
+
+#### NVIDIA GPUs
+
+To use NVIDIA GPUs for mining, you need to have the NVIDIA Container Toolkit installed and use the following command:
+
+```bash
+docker run --privileged --gpus all simeononsecurity/xmrig:latest -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k --cuda
+```
+
+The container automatically:
+1. Detects the presence of NVIDIA GPUs
+2. Builds the XMRig CUDA plugin from source code
+3. Configures XMRig to use the CUDA plugin for GPU mining
+
+No additional configuration is required to enable CUDA support. The container includes CUDA Toolkit 12.4 for building the plugin, which supports most modern NVIDIA GPUs. Building from source ensures maximum compatibility and performance.
+
+#### AMD GPUs
+
+To use AMD GPUs for mining, you need to pass through the GPU devices:
+
+```bash
+docker run --privileged --device=/dev/dri:/dev/dri --device=/dev/kfd:/dev/kfd simeononsecurity/xmrig:latest -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k --opencl
+```
+
 #### Using Docker Compose
 
 The included `docker-compose.yml` file is pre-configured for both NVIDIA and AMD GPU support. Simply uncomment the relevant sections and run:
@@ -81,6 +107,7 @@ docker build -t xmrig .
 ## License
 
 This Dockerfile and associated scripts are provided under the Apache License 2.0. XMRig itself is subject to its own licensing terms.
+
 
 <a href="https://simeononsecurity.com" target="_blank" rel="noopener noreferrer">
   <h2>Explore the World of Cybersecurity</h2>
