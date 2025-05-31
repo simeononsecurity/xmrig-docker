@@ -1,0 +1,86 @@
+# XMRig Docker Container
+
+This Docker container automatically downloads and runs the latest version of [XMRig](https://github.com/xmrig/xmrig), a high-performance RandomX, KawPow, CryptoNight, AstroBWT and GhostRider CPU/GPU miner.
+
+## Features
+
+- Automatically downloads the latest XMRig release
+- Runs the RandomX boost script at startup for optimal performance
+- Allows custom configuration via mounted config.json
+- Supports passing command-line arguments directly to XMRig
+- Supports NVIDIA and AMD GPU passthrough for GPU mining
+
+## Prerequisites
+
+- Docker installed on your system
+- MSR modules available on the host (for RandomX optimization)
+- For GPU mining:
+  - NVIDIA: [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker) installed
+  - AMD: Proper drivers installed and device access
+
+## Usage
+
+### Basic Usage
+
+```bash
+docker run --privileged simeononsecurity/xmrig:latest
+```
+
+The `--privileged` flag is required to allow the container to run the RandomX boost script, which needs access to MSR (Model-Specific Registers).
+
+### Using a Custom Configuration
+
+You can mount your own `config.json` file to override the default configuration:
+
+```bash
+docker run --privileged -v /path/to/your/config.json:/config/config.json simeononsecurity/xmrig:latest
+```
+
+### Passing Command-Line Arguments
+
+You can pass arguments directly to XMRig:
+
+```bash
+docker run --privileged simeononsecurity/xmrig:latest -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k
+```
+
+### GPU Mining
+
+#### NVIDIA GPUs
+
+To use NVIDIA GPUs for mining, you need to have the NVIDIA Container Toolkit installed and use the following command:
+
+```bash
+docker run --privileged --gpus all simeononsecurity/xmrig:latest -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k --cuda
+```
+
+#### AMD GPUs
+
+To use AMD GPUs for mining, you need to pass through the GPU devices:
+
+```bash
+docker run --privileged --device=/dev/dri:/dev/dri --device=/dev/kfd:/dev/kfd simeononsecurity/xmrig:latest -o pool.example.com:3333 -u YOUR_WALLET_ADDRESS -p x -k --opencl
+```
+
+#### Using Docker Compose
+
+The included `docker-compose.yml` file is pre-configured for both NVIDIA and AMD GPU support. Simply uncomment the relevant sections and run:
+
+```bash
+docker-compose up -d
+```
+
+## Building the Image
+
+```bash
+docker build -t xmrig .
+```
+
+## Security Considerations
+
+- Running containers with the `--privileged` flag grants extensive permissions to the container, which could be a security risk. Only use this container in trusted environments.
+- Always verify the source of Docker images before running them, especially for cryptocurrency mining software.
+
+## License
+
+This Dockerfile and associated scripts are provided under the MIT License. XMRig itself is subject to its own licensing terms.
