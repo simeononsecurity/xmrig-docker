@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
 # Add metadata labels
 LABEL org.opencontainers.image.title="XMRig Docker"
@@ -18,13 +18,23 @@ LABEL org.opencontainers.image.documentation="https://github.com/simeononsecurit
 # Docker Hub labels
 LABEL com.docker.hub.repository="simeononsecurity/xmrig"
 
-# Install required packages
+# Install required packages and build dependencies
 # Note: NVIDIA support is provided by the host through the NVIDIA Container Toolkit
 # We don't install NVIDIA drivers in the container
 RUN apt-get update && \
     apt-get install -y wget tar msr-tools \
     ocl-icd-libopencl1 opencl-headers clinfo \
-    libcurl4 libssl3 libhwloc15 && \
+    libcurl4 libssl3 libhwloc15 \
+    build-essential cmake git gnupg && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install CUDA Toolkit for building CUDA plugin
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb && \
+    dpkg -i cuda-keyring_1.1-1_all.deb && \
+    rm cuda-keyring_1.1-1_all.deb && \
+    apt-get update && \
+    apt-get install -y cuda-toolkit-12-4 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
