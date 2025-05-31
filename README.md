@@ -2,6 +2,9 @@
 
 This Docker container automatically downloads and runs the latest version of [XMRig](https://github.com/xmrig/xmrig), a high-performance RandomX, KawPow, CryptoNight, AstroBWT and GhostRider CPU/GPU miner.
 
+_________
+[![Sponsor](https://img.shields.io/badge/Sponsor-Click%20Here-ff69b4)](https://github.com/sponsors/simeononsecurity) [![DockerHub](https://img.shields.io/badge/DockerHub-View%20Image-blue?logo=docker)](https://hub.docker.com/r/simeononsecurity/xmrig)
+
 ## Features
 
 - Automatically downloads the latest XMRig release
@@ -83,4 +86,17 @@ docker build -t xmrig .
 
 ## License
 
-This Dockerfile and associated scripts are provided under the MIT License. XMRig itself is subject to its own licensing terms.
+This Dockerfile and associated scripts are provided under the Apache 2 License. XMRig itself is subject to its own licensing terms.
+
+
+<a href="https://simeononsecurity.com" target="_blank" rel="noopener noreferrer">
+  <h2>Explore the World of Cybersecurity</h2>
+</a>
+<a href="https://simeononsecurity.com" target="_blank" rel="noopener noreferrer">
+  <img src="https://simeononsecurity.com/img/banner.png" alt="SimeonOnSecurity Logo" width="300" height="300">
+</a>
+
+### **Links:**
+- #### [github.com/simeononsecurity](https://github.com/simeononsecurity)
+- #### [simeononsecurity.com](https://simeononsecurity.com)
+
