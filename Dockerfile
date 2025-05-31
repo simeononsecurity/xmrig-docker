@@ -1,5 +1,23 @@
 FROM ubuntu:22.04
 
+# Add metadata labels
+LABEL org.opencontainers.image.title="XMRig Docker"
+LABEL org.opencontainers.image.description="Docker container for XMRig cryptocurrency miner with CPU, NVIDIA and AMD GPU support"
+LABEL org.opencontainers.image.url="https://github.com/simeononsecurity/xmrig-docker"
+LABEL org.opencontainers.image.source="https://github.com/simeononsecurity/xmrig-docker"
+LABEL org.opencontainers.image.version="latest"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+LABEL org.opencontainers.image.vendor="SimeonOnSecurity"
+LABEL org.opencontainers.image.authors="SimeonOnSecurity"
+LABEL maintainer="SimeonOnSecurity"
+
+# GitHub Container Registry labels
+LABEL com.github.repo="simeononsecurity/xmrig-docker"
+LABEL org.opencontainers.image.documentation="https://github.com/simeononsecurity/xmrig-docker/blob/main/README.md"
+
+# Docker Hub labels
+LABEL com.docker.hub.repository="simeononsecurity/xmrig"
+
 # Install required packages
 RUN apt-get update && \
     apt-get install -y wget tar msr-tools \
