@@ -73,60 +73,47 @@ fi
 echo "XMRig executable found and ready"
 chmod +x ./xmrig
 
-# Download CUDA plugin for NVIDIA GPU support
+# Build CUDA plugin for NVIDIA GPU support
 echo "Checking for NVIDIA GPUs..."
 if [ -c /dev/nvidia0 ] || [ -d /proc/driver/nvidia ]; then
-    echo "NVIDIA GPU detected, downloading xmrig-cuda plugin..."
+    echo "NVIDIA GPU detected, building xmrig-cuda plugin from source..."
     
-    # Get latest CUDA plugin release URL
-    CUDA_RELEASE_URL=$(wget -qO- https://api.github.com/repos/xmrig/xmrig-cuda/releases/latest | grep "browser_download_url.*cuda.*tar.gz" | grep -v "sha256" | cut -d '"' -f 4 | grep "12.4" | head -n 1)
+    # Clone the xmrig-cuda repository
+    echo "Cloning xmrig-cuda repository..."
+    git clone https://github.com/xmrig/xmrig-cuda.git
+    cd xmrig-cuda
     
-    if [ -z "$CUDA_RELEASE_URL" ]; then
-        echo "Failed to get latest CUDA plugin URL, using fallback URL"
-        CUDA_RELEASE_URL="https://github.com/xmrig/xmrig-cuda/releases/download/v6.22.0/xmrig-cuda-6.22.0-cuda12.4-win64.zip"
-    fi
+    # Create build directory
+    mkdir -p build
+    cd build
     
-    echo "Downloading CUDA plugin from: $CUDA_RELEASE_URL"
+    # Configure and build
+    echo "Configuring and building xmrig-cuda plugin..."
+    cmake .. -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda
+    make -j$(nproc)
     
-    # Download the CUDA plugin
-    if wget -O cuda-plugin.tar.gz "$CUDA_RELEASE_URL"; then
-        echo "Successfully downloaded CUDA plugin"
+    # Check if build was successful
+    if [ -f "libxmrig-cuda.so" ]; then
+        echo "Successfully built CUDA plugin"
+        # Move the plugin to the app directory
+        cp libxmrig-cuda.so /app/
+        cd /app
         
-        # Extract the plugin
-        if [[ "$CUDA_RELEASE_URL" == *".zip" ]]; then
-            apt-get update && apt-get install -y unzip
-            unzip -o cuda-plugin.tar.gz
-        else
-            tar -xzf cuda-plugin.tar.gz
+        # Update config.json to enable CUDA if it exists
+        if [ -f "./config.json" ]; then
+            echo "Updating config.json to enable CUDA support"
+            sed -i 's/"cuda": {[^}]*}/"cuda": {\n      "enabled": true,\n      "loader": null,\n      "nvml": true,\n      "devices": []\n    }/g' ./config.json
         fi
-        
-        # Find the plugin file
-        CUDA_PLUGIN=$(find . -name "libxmrig-cuda.so" -o -name "xmrig-cuda.dll" | head -n 1)
-        
-        if [ -n "$CUDA_PLUGIN" ]; then
-            echo "Found CUDA plugin: $CUDA_PLUGIN"
-            # Move the plugin to the current directory if it's in a subdirectory
-            if [ "$(dirname "$CUDA_PLUGIN")" != "." ]; then
-                mv "$CUDA_PLUGIN" ./
-            fi
-            chmod +x ./$(basename "$CUDA_PLUGIN")
-            
-            # Update config.json to enable CUDA if it exists
-            if [ -f "./config.json" ]; then
-                echo "Updating config.json to enable CUDA support"
-                sed -i 's/"cuda": {[^}]*}/"cuda": {\n      "enabled": true,\n      "loader": null,\n      "nvml": true,\n      "devices": []\n    }/g' ./config.json
-            fi
-        else
-            echo "CUDA plugin not found in the downloaded package"
-        fi
-        
-        # Clean up
-        rm -f cuda-plugin.tar.gz
     else
-        echo "Failed to download CUDA plugin"
+        echo "Failed to build CUDA plugin"
+        cd /app
     fi
+    
+    # Clean up
+    echo "Cleaning up build files..."
+    rm -rf /app/xmrig-cuda
 else
-    echo "No NVIDIA GPU detected, skipping CUDA plugin download"
+    echo "No NVIDIA GPU detected, skipping CUDA plugin build"
 fi
 
 # Clean up XMRig download files
